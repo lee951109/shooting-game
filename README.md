@@ -64,7 +64,7 @@ function main() {
 }
 ```
 
-여기까지 하면 이런 이미지가 나온다
+여기까지 하면 이런 이미지가 나온다<br/>
 ![game](https://user-images.githubusercontent.com/71690561/190070716-a34b3e8a-ae42-4fae-bc6f-52ca62a4d43b.png)
 
 ## 우주선 움직이기
@@ -126,7 +126,71 @@ function main() {
 ## 총알 만들기
 
 1. 스페이스바를 누르면 총알 발사
-2. 총알이 발사 = 총알의 y값 --, 총알의 x값은 스페이스바를 누른 시점의 우주선의 x값
-3. 발사된 총알들은 총알 배열에 저장을 해둔다.
-4. 모든 총알들은 x,y값이 있어야 한다.
-5. 총알 배열을 가지고 render한다.
+
+```javascript
+function setupKeyboardListener() {
+  ...
+  document.addEventListener("keyup", function (e) {
+  ...
+    if (e.keyCode == 32) {
+      //spacebar
+      createBullet(); // 총알 생성
+    }
+  });
+}
+```
+
+2. 발사된 총알들은 총알 배열에 저장을 해둔다.
+
+> class로 만들어도 되지만 JS에서는 function으로도 가능해서 일단 이렇게 만든다.
+
+```javascript
+// 총알들을 저장하는 리스트
+let bulletLsit = [];
+function Bullet() {
+  this.x = 0;
+  this.y = 0;
+  this.init = function () {
+    // 초기값
+    this.x = spaceshipX + 17;
+    this.y = spaceshipY;
+
+    bulletLsit.push(this);
+  };
+  this.update = function () {
+    this.y -= 7;
+  };
+}
+```
+
+```javascript
+function createBullet() {
+  let b = new Bullet(); // 총알 하나 생성
+  b.init();
+  console.log("총알 리스트", bulletLsit);
+}
+```
+
+3. 스페이스바를 누르면 총알 생성
+
+```javascript
+function render () {
+  ...
+for (let i = 0; i < bulletLsit.length; i++) {
+    ctx.drawImage(bulletImg, bulletLsit[i].x, bulletLsit[i].y, 30, 30);
+  }
+}
+```
+
+4. 총알을 발사
+
+```javascript
+function update() {
+  ...
+for (let i = 0; i < bulletLsit.length; i++) {
+    bulletLsit[i].update();
+  }
+}
+```
+
+총알을 발사하면 `bulletList.update()`를 실행해서 y를 -7씩 줄어들게 한다.
