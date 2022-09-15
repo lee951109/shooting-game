@@ -2,7 +2,7 @@
 
 유튜브에서 [코딩알려주는 누나](https://www.youtube.com/c/%EC%BD%94%EB%94%A9%EC%95%8C%EB%A0%A4%EC%A3%BC%EB%8A%94%EB%88%84%EB%82%98)를 보고 따라만든 고전게임입니다..!<br/>
 
-## 이미지 만들기
+## 📌 이미지 만들기
 
 ```javascript
 let backgroundImg, spaceshipImg, overImg, enemyImg, bulletImg;
@@ -67,7 +67,7 @@ function main() {
 여기까지 하면 이런 이미지가 나온다<br/>
 ![game](https://user-images.githubusercontent.com/71690561/190070716-a34b3e8a-ae42-4fae-bc6f-52ca62a4d43b.png)
 
-## 우주선 움직이기
+## 📌 우주선 움직이기
 
 1. keysDown에 key가 눌리면 저장을 하고, 떼어지면 삭제를 한다.
 
@@ -123,7 +123,7 @@ function main() {
 }
 ```
 
-## 총알 만들기
+## 📌 총알 만들기
 
 1. 스페이스바를 누르면 총알 발사
 
@@ -194,3 +194,96 @@ for (let i = 0; i < bulletLsit.length; i++) {
 ```
 
 총알을 발사하면 `bulletList.update()`를 실행해서 y를 -7씩 줄어들게 한다.
+
+## 📌 적군 생성
+
+1. 적군은 y=0, x= 컨버스의 크기만큼 랜덤하게 나와야 한다.
+
+```javascript
+let enemyList = [];
+
+function generateRandomValue(min, max) {
+  // 최대값, 최소값 구하는 공식  Math.random() * (max - min + 1)) + min;
+  let randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+  return randomNum;
+}
+
+function Enemy() {
+  this.x = 0;
+  this.y = 0;
+  this.init = function () {
+    this.y = 0;
+    this.x = generateRandomValue(0, canvas.width - 48); // 최소값, 최대값
+    enemyList.push(this);
+  };
+  this.update = function () {
+    this.y += 2;
+
+    if (this.y >= canvas.height - 48) {
+      gameOver = true;
+    }
+  };
+}
+```
+
+2. 적군은 1초마다 생성한다
+
+```javascript
+
+ function render() {
+   ...
+   for (let i = 0; i < enemyList.length; i++) {
+     ctx.drawImage(enemyImg, enemyList[i].x, enemyList[i].y, 48, 48);
+   }
+ }
+
+ function createEnemy() {
+ const interval = setInterval(function () {
+   let e = new Enemy();
+   e.init();
+ }, 1000);
+ }
+
+```
+
+그리고 총알과 마찬가지로 update function에서 정의한다.
+
+```javascript
+for (let i = 0; i < enemyList.length; i++) {
+  enemyList[i].update();
+}
+```
+
+## 📌 적군 맞추기
+
+1. 적군과 총알이 만나는 값 구하기
+   > 총알.y <= 적군.y `and` 총알.x >= 적군.x `and` 총알.x <= 적군.x + 적군의 넓이
+
+```javascript
+let bulletLsit = [];
+function Bullet() {
+...
+  this.init = function () {
+    this.alive = true; // true 총알이 살아있음
+    bulletLsit.push(this);
+  };
+...
+  this.checkHit = function () {
+    // 총알.y <= 적군.y and
+    // 총알.x >= 적군.x and 총알.x <= 적군.x + 적군의 넓이
+    for (let i = 0; i < enemyList.length; i++) {
+      if (
+        this.y <= enemyList[i].y &&
+        this.x >= enemyList[i].x &&
+        this.x <= enemyList[i].x + 48
+      ) {
+        // 총알이 닿으면 적군이 없어지고 점수 ++
+        score++;
+        this.alive = false; // 총알이 적을 맞춤.
+        enemyList.splice(i, 1);
+      }
+    }
+  };
+}
+
+```
